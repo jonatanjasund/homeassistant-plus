@@ -39,3 +39,7 @@ The `==UserScript==` header is generated from the `userscript` block in `vite.co
 ## Dev vs. built script
 
 `pnpm dev` installs a separate `server:`-prefixed script. When both it and the built script are enabled in Tampermonkey, both register keydown listeners and the first one swallows the keys — disable the built copy while developing.
+
+## Git workflow
+
+Commit early and often: make a commit after each self-contained step (a feature, a fix, a refactor, a rename) instead of batching a session's work into one commit. Each commit should pass `pnpm build` on its own. Unrelated changes — e.g. a route fix discovered while building a feature — go in their own commit. Always ask before pushing.
