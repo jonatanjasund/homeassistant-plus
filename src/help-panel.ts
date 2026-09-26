@@ -1,7 +1,9 @@
+import { KEY_STYLE, renderKeys } from './keys';
 import type { Shortcut } from './shortcuts';
 
 // Custom properties inherit into shadow DOM, so HA's theme variables (light/dark) apply here.
 const STYLE = `
+  ${KEY_STYLE}
   .backdrop {
     position: fixed;
     inset: 0;
@@ -26,16 +28,7 @@ const STYLE = `
   table { border-collapse: collapse; width: 100%; }
   td { padding: 6px 0; }
   td:first-child { padding-right: 24px; white-space: nowrap; }
-  kbd {
-    display: inline-block;
-    min-width: 1em;
-    margin-right: 4px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: var(--secondary-background-color, #eee);
-    font: 13px monospace;
-    text-align: center;
-  }
+  kbd { padding: 2px 6px; font-size: 13px; }
 `;
 
 let host: HTMLElement | undefined;
@@ -79,12 +72,7 @@ export function toggleHelpPanel(shortcuts: Shortcut[]): void {
   const table = document.createElement('table');
   for (const shortcut of shortcuts) {
     const row = table.insertRow();
-    const keysCell = row.insertCell();
-    for (const key of shortcut.keys.split(' ')) {
-      const kbd = document.createElement('kbd');
-      kbd.textContent = key;
-      keysCell.append(kbd);
-    }
+    row.insertCell().append(...renderKeys(shortcut.keys));
     row.insertCell().textContent = shortcut.description;
   }
 
