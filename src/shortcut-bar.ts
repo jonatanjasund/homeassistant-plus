@@ -45,8 +45,20 @@ const BAR_STYLE = `
     font-size: 12px;
     cursor: pointer;
   }
+  /* Auto margins center the chips but collapse to 0 on overflow, so the bar still scrolls from the
+     first chip. justify-content: center would push the overflow off the unscrollable left edge. */
+  button:first-of-type { margin-left: auto; }
+  button:last-of-type { margin-right: auto; }
   button:hover { background: var(--secondary-background-color, #eee); }
+  button[aria-current='page'] {
+    border-color: var(--primary-color, #03a9f4);
+    background: color-mix(in srgb, var(--primary-color, #03a9f4) 20%, transparent);
+  }
   button:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 1px; }
+  :host(.compact) .keys { display: none; }
+  @media (pointer: coarse) {
+    .keys { display: none; }
+  }
 `;
 
 export function mountShortcutBar(shortcuts: Shortcut[]): void {
@@ -63,16 +75,43 @@ export function mountShortcutBar(shortcuts: Shortcut[]): void {
   style.textContent = BAR_STYLE;
   root.append(style);
 
-  for (const shortcut of shortcuts) {
+  const chips = shortcuts.map((shortcut) => {
     const keys = document.createElement('span');
+    keys.className = 'keys';
     keys.append(...renderKeys(shortcut.keys));
 
     const chip = document.createElement('button');
     chip.type = 'button';
+    chip.title = `${shortcut.description} (${shortcut.keys})`;
     chip.append(shortcut.description, keys);
     chip.addEventListener('click', shortcut.run);
-    root.append(chip);
-  }
-
+    return chip;
+  });
+  root.append(...chips);
   document.body.prepend(host);
+
+  const markActivePage = () => {
+    shortcuts.forEach((shortcut, i) => {
+      const chip = chips[i];
+      if (shortcut.isActive?.(location.pathname)) {
+        chip.setAttribute('aria-current', 'page');
+        // Only matters when the bar overflows (phones): keeps the active chip centered, neighbors peeking in.
+        chip.scrollIntoView({ block: 'nearest', inline: 'center' });
+      } else {
+        chip.removeAttribute('aria-current');
+      }
+    });
+  };
+  // HA fires location-changed for every in-app navigation (as does our navigate()); popstate covers back/forward.
+  window.addEventListener('location-changed', markActivePage);
+  window.addEventListener('popstate', markActivePage);
+  markActivePage();
+
+  // Measure instead of using a fixed breakpoint, so it adapts to label lengths and added shortcuts.
+  // When full chips overflow, drop the key caps (still shown in tooltips and the help panel).
+  const fit = () => {
+    host.classList.remove('compact');
+    host.classList.toggle('compact', host.scrollWidth > host.clientWidth);
+  };
+  new ResizeObserver(fit).observe(host);
 }

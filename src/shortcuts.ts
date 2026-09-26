@@ -3,6 +3,8 @@ export interface Shortcut {
   keys: string;
   description: string;
   run: () => void;
+  /** Whether the current page (location.pathname) is this shortcut's destination; highlights its chip. */
+  isActive?: (path: string) => boolean;
 }
 
 const SEQUENCE_TIMEOUT_MS = 1000;
