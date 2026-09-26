@@ -34,7 +34,7 @@ const shortcuts: Shortcut[] = [
     isActive: under('/config/tools', '/developer-tools'),
   },
   page('g h', 'History', '/history'),
-  page('g l', 'Logbook', '/logbook'),
+  page('g l', 'Activity', '/logbook'),
   page('g c', 'Settings', '/config/dashboard'),
   { keys: '?', description: 'Help', run: () => toggleHelpPanel(shortcuts) },
 ];
