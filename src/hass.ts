@@ -11,6 +11,8 @@ export interface HassEntity {
 /** The parts of Home Assistant's frontend `hass` object this script uses. Extend as needed. */
 export interface HomeAssistant {
   states: Record<string, HassEntity>;
+  /** Sidebar panels available on this install, keyed by URL path. */
+  panels: Record<string, { url_path: string; title: string | null }>;
   user?: { id: string; name: string; is_admin: boolean };
   language: string;
   callService(

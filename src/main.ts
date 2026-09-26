@@ -1,16 +1,20 @@
 import { GM_registerMenuCommand } from '$';
-import { navigate, waitForHass } from './hass';
+import { getHass, navigate, waitForHass } from './hass';
 import { toggleHelpPanel } from './help-panel';
 import { registerShortcuts, type Shortcut } from './shortcuts';
 
 const go = (path: string) => () => navigate(path);
+
+// Newer HA versions moved developer tools into Settings; older ones still have the standalone panel.
+const goToDeveloperTools = () =>
+  navigate(getHass()?.panels['developer-tools'] ? '/developer-tools/state' : '/config/tools/state');
 
 const shortcuts: Shortcut[] = [
   { keys: 'g o', description: 'Overview dashboard', run: go('/lovelace') },
   { keys: 'g a', description: 'Automations', run: go('/config/automation/dashboard') },
   { keys: 'g s', description: 'Scripts', run: go('/config/script/dashboard') },
   { keys: 'g e', description: 'Entities', run: go('/config/entities') },
-  { keys: 'g d', description: 'Developer tools', run: go('/developer-tools/state') },
+  { keys: 'g d', description: 'Developer tools', run: goToDeveloperTools },
   { keys: 'g h', description: 'History', run: go('/history') },
   { keys: 'g l', description: 'Logbook', run: go('/logbook') },
   { keys: 'g c', description: 'Settings', run: go('/config/dashboard') },
